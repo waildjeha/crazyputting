@@ -40,8 +40,10 @@ golfgame/
 
 **1. Clone or download the project**
 ```
-git clone <repository-url>
-cd golfgame
+git clone <https://gitlab.maastrichtuniversity.nl/project-1-2-25-26/dsai/team_06>
+cd <project_folder>
+git checkout Wail
+git checkout -b YourBranch
 ```
 
 **2. Compile the project**
