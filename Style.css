@@ -1,7 +1,6 @@
 /* Main Window Background - Soft Desktop Gradient */
 .root {
     -fx-background-color: linear-gradient(to bottom right, #e2e2e2, #ffffff);
-    -fx-font-family: ".AppleSystemUIFont", "Helvetica Neue", sans-serif;
 }
 
 /* The Glass Panel - used for your parameter containers */
