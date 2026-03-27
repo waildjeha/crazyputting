@@ -1,5 +1,4 @@
 import javafx.application.Application;
-import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -13,7 +12,7 @@ public class Main extends Application{
         Parent root = loader.load();
         Controller controller = loader.getController(); //Now The controller can modify the scene
         controller.setMainWindow(primaryStage);
-        primaryStage.setTitle("Beko");
+        primaryStage.setTitle("Project 1-2 : Phase 1");
         primaryStage.setScene(new Scene(root));
         primaryStage.show();
     }
