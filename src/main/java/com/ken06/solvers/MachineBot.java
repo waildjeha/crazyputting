@@ -4,8 +4,7 @@ public class MachineBot {
     //when hit tree get penalty when hit water penalty
     //when in sand (set certain interval) increase friction
     //2d array where the first sub array holds the x-bounds and the second sub array holds the y-bounds
-    private final static double SAND_FRICTION = 1;
-    private static EulerSolver solver;
+    private EulerSolver solver;
 
     //constructor to set variables
     public MachineBot(EulerSolver eulerSolver){
@@ -20,7 +19,7 @@ public class MachineBot {
      * @param position current position of x and y
      * @return the distance away from the hole
      */
-    private static double[] error(double[] velocity,double[] finalPositions,double[] position, double stepSize){
+    private double[] error(double[] velocity,double[] finalPositions,double[] position, double stepSize){
         double[] estimates = solver.euler(velocity,position,stepSize);
         double x = estimates[0] - finalPositions[0];
         double y = estimates[1] - finalPositions[1];
@@ -36,7 +35,7 @@ public class MachineBot {
      * @param position current position of x and y
      * @return a 2x2 Matrix holding the change of x based on x and y and change of y based on x and y
      */
-    private static double[][] populateJacobianMatrix(double[] velocity, double[] finalPosition, double epsilon,double[] position,double stepSize){
+    private double[][] populateJacobianMatrix(double[] velocity, double[] finalPosition, double epsilon,double[] position,double stepSize){
         double[] baseLine =  error(velocity, finalPosition,position,stepSize);
         double[] changeX = error(new double[]{velocity[0]+ epsilon, velocity[1]},finalPosition,position,stepSize);
         double[] changeY = error(new double[]{velocity[0], velocity[1]+ epsilon},finalPosition,position,stepSize);
