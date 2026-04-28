@@ -8,7 +8,7 @@ public class EulerSolver extends ODESolver{
     private PhysicsEngine engine;
 
     //constructor to set variables
-    public EulerSolver(double stepSize, ODEFunction green, double friction, double[][] sandInterval){
+    public EulerSolver(ODEFunction green, double friction, double[][] sandInterval){
         this.green = green;
         double sandFriction = 1.0;
         this.engine = new PhysicsEngine(friction, sandFriction,sandInterval);
@@ -20,11 +20,9 @@ public class EulerSolver extends ODESolver{
      * @param initialPosition the position of x and y
      * @return Array [0] X-position [1] Y-position
      */
-    public double[] euler(double[] initialVelocity,double[] initialPosition,double stepSize){
+    @Override
+    public double[] solve(double[] initialVelocity,double[] initialPosition,double stepSize){
         double time = 0;
-        double[] position = initialPosition.clone();
-        double[] velocity = initialVelocity.clone();
-        double[] values = new double[]{initialPosition[0],initialPosition[1],initialVelocity[0],initialVelocity[1]};
 
         double[] state = new double[]{
                 initialPosition[0],
@@ -34,11 +32,17 @@ public class EulerSolver extends ODESolver{
         };
 
         //loop until the ball stops (velocity < 0.01)
-        while (Math.abs(state[2]) >= 0.01 || Math.abs(state[3]) >= 0.01) {
+        while (Math.hypot(state[2], state[3]) >= 0.01) {
             double[] nextState = step(this.green,time,state,stepSize);
             time += stepSize;
-
             state = nextState;
+            //check if height function is negative (and by def. ball is in water)
+            double currentZ = this.green.evaluateHeight(new double[]{state[0], state[1]});
+            //is in the water
+            if (currentZ < 0){
+                System.out.println("Your ball fell into the water");
+                return new double[]{state[0],state[1]};
+            }
 
         }
 

@@ -4,11 +4,11 @@ public class MachineBot {
     //when hit tree get penalty when hit water penalty
     //when in sand (set certain interval) increase friction
     //2d array where the first sub array holds the x-bounds and the second sub array holds the y-bounds
-    private EulerSolver solver;
+    private ODESolver solver;
 
     //constructor to set variables
-    public MachineBot(EulerSolver eulerSolver){
-        this.solver = eulerSolver;
+    public MachineBot(ODESolver solver){
+        this.solver = solver;
     }
 
     /** HELPER METHOD
@@ -20,7 +20,7 @@ public class MachineBot {
      * @return the distance away from the hole
      */
     private double[] error(double[] velocity,double[] finalPositions,double[] position, double stepSize){
-        double[] estimates = solver.euler(velocity,position,stepSize);
+        double[] estimates = solver.solve(velocity,position,stepSize);
         double x = estimates[0] - finalPositions[0];
         double y = estimates[1] - finalPositions[1];
         return new double[]{x,y};
@@ -101,7 +101,7 @@ public class MachineBot {
 
         while (iterations < maxIterations) {
 
-            double[] finalRestingPlace = solver.euler(currentVelocity, startPosition,stepSize);
+            double[] finalRestingPlace = solver.solve(currentVelocity, startPosition,stepSize);
 
             double distanceToHole = Math.hypot(
                     finalRestingPlace[0] - targetPosition[0],

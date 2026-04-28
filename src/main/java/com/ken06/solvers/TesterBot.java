@@ -14,6 +14,13 @@ public class TesterBot {
 
                 return new double[]{dhdx, dhdy};
             }
+            @Override
+            public double evaluateHeight(double[] position){
+                double x = position[0];
+                double y = position[1];
+                // The height function h(x,y)
+                return 0.25 * Math.sin((x + y) / 10.0) + 1.0;
+            }
         };
 
         // 3. Set up the test parameters
@@ -25,8 +32,12 @@ public class TesterBot {
 
         // 2. Initialize your machine
         // (Assuming step size = 0.01 and no sand intervals for this basic test)
-        EulerSolver euler = new EulerSolver(stepsize,testGreen,0.08,null);
-        MachineBot bot = new MachineBot(euler);
+        EulerSolver euler = new EulerSolver(testGreen,0.08,null);
+        RK4Solver solver = new RK4Solver(testGreen,0.08,null);
+
+        //choose which bot to take
+       // MachineBot bot = new MachineBot(euler);
+        MachineBot bot = new MachineBot(solver);
 
 
         // 4. Provide an initial guess for the velocity
@@ -51,6 +62,71 @@ public class TesterBot {
         System.out.println("Total Speed: " + speed + " m/s");
 
         if(speed > 5.0) {
+            System.out.println("WARNING: Speed exceeds the maximum allowed 5 m/s!");
+        }
+        //Second example: testing water logic
+
+        // 1. Define "The Cursed Bowl" course
+        ODEFunction cursedBowl = new ODEFunction() {
+            @Override
+            public double[] computeDerivatives(double t, double[] position) {
+                double x = position[0];
+                double y = position[1];
+                // Derivatives of the paraboloid
+                double dhdx = 0.2 * (x - 10.0);
+                double dhdy = 0.2 * (y - 5.0);
+                return new double[]{dhdx, dhdy};
+            }
+
+            @Override
+            public double evaluateHeight(double[] position) {
+                double x = position[0];
+                double y = position[1];
+                // The height function. Drops below 0 near (10, 5)
+                return 0.1 * (Math.pow(x - 10.0, 2) + Math.pow(y - 5.0, 2)) - 0.4;
+            }
+        };
+
+        // 2. Set up the test parameters
+        double[] startPosition2 = {5.0, 3.0};
+        double[] targetPosition2 = {15.0, 7.0};
+        double radius2 = 0.1;
+        double epsilon2 = 1e-5;
+        double stepsize2 = 0.01;
+        double friction2 = 0.08;
+
+        // 3. Initialize your solvers
+        RK4Solver rk4 = new RK4Solver(cursedBowl, friction2, null);
+        MachineBot bot2 = new MachineBot(rk4);
+
+        // 4. Provide a naive initial guess
+        // This guess shoots directly at the hole, guaranteeing a water collision on iteration 1
+        double[] initialVelocityGuess2 = {3.0, 1.2};
+
+        System.out.println("Starting Newton-Raphson Optimization...");
+        System.out.println("Target: " + targetPosition2[0] + ", " + targetPosition2[1]);
+        System.out.println("-------------------------------------------------");
+
+        // 5. Run the bot!
+        double[] bestVelocity2 = bot.holeInOneMachine(
+                initialVelocityGuess2,
+                startPosition2,
+                targetPosition2,
+                radius2,
+                epsilon2,
+                stepsize2
+        );
+
+        // 6. Print the results
+        System.out.println("-------------------------------------------------");
+        System.out.println("SOLUTION FOUND!");
+        System.out.println("Optimal Initial Velocity X: " + bestVelocity2[0]);
+        System.out.println("Optimal Initial Velocity Y: " + bestVelocity2[1]);
+
+        double speed2 = Math.hypot(bestVelocity2[0], bestVelocity2[1]);
+        System.out.println("Total Speed: " + speed2 + " m/s");
+
+        if(speed2 > 5.0) {
             System.out.println("WARNING: Speed exceeds the maximum allowed 5 m/s!");
         }
     }

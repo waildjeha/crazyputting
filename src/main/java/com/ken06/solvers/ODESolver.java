@@ -40,6 +40,8 @@ public abstract class ODESolver {
 
         return new SolverResult(times, states);
     }
+       public abstract double[] solve(double[] initialVelocity,double[] initialPosition,double stepSize);
+
 
     // Vector operations methods to avoid clunking the RK4 code with basic arithmetic
 
