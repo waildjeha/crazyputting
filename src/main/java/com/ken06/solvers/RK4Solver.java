@@ -5,9 +5,17 @@ package com.ken06.solvers;
 public class RK4Solver extends ODESolver {
     final ODEFunction green;
     private PhysicsEngine engine;
+    private final String user; //to find out who is using it to apply different punishment when hitting water/tree
     public RK4Solver(ODEFunction green,double friction, double[][] sandInterval){
         this.green = green;
         double sandFriction = 1.0;
+        this.user = null;
+        this.engine = new PhysicsEngine(friction, sandFriction,sandInterval);
+    }
+    public RK4Solver(ODEFunction green,double friction, double[][] sandInterval,String user){
+        this.green = green;
+        double sandFriction = 1.0;
+        this.user = user;
         this.engine = new PhysicsEngine(friction, sandFriction,sandInterval);
     }
 
@@ -56,14 +64,14 @@ public class RK4Solver extends ODESolver {
             time += stepSize;
 
             state = nextState;
-            //check if height function is negative (and by def. ball is in water)
-            double currentZ = this.green.evaluateHeight(new double[]{state[0], state[1]});
             //is in the water
-            if (currentZ < 0){
-                System.out.println("Your ball fell into the water");
-                return new double[]{state[0],state[1]};
+            if (engine.isInWater(state,green)){
+                if(user == null) { //not a user
+                    return new double[]{state[0], state[1]};
+                }else { //user
+                    return initialPosition;
+                }
             }
-
         }
 
         return new double[]{state[0],state[1]};
@@ -77,11 +85,10 @@ public class RK4Solver extends ODESolver {
         double[] velocity = new double[]{state[2], state[3]};
         double[] slope = f.computeDerivatives(t, state);
 
-        // Math.hypot is a safer way to calculate speed
-        double speed = Math.hypot(velocity[0], velocity[1]);
+
 
         // Apply physics to get accelerations
-        double[] accels = engine.applyPhysics(new double[]{state[0], state[1]},velocity, slope, speed);
+        double[] accels = engine.applyPhysics(new double[]{state[0], state[1]},velocity, slope);
 
         // Return [dx/dt, dy/dt, dvx/dt, dvy/dt]
         return new double[]{state[2], state[3], accels[0], accels[1]};

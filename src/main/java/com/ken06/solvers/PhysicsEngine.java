@@ -11,10 +11,12 @@ public class PhysicsEngine {
         this.SAND_FRICTION = SAND_FRICTION;
         this.SAND_INTERVAL = sandInterval;
     }
-    public double[] applyPhysics(double[] position, double[] velocity,double[] slope,double speed){
+    public double[] applyPhysics(double[] position, double[] velocity,double[] slope){
         //acceleration formulas
         double ax = -GRAVITY * slope[0];
         double ay = -GRAVITY * slope[1];
+        //calculate speed
+        double speed = Math.hypot(velocity[0], velocity[1]);
 
         if (speed > 0.01) {
             if (isInSand(position)) {
@@ -39,6 +41,19 @@ public class PhysicsEngine {
             }
         }
 
+        return false;
+    }
+    public boolean isInWater(double[] state,ODEFunction green) {
+        //check if height function is negative (and by def. ball is in water)
+        double currentZ = green.evaluateHeight(new double[]{state[0], state[1]});
+        //is in the water
+        if (currentZ < 0) {
+            System.out.println("Your ball fell into the water");
+            return true;
+        }
+        return false;
+    }
+    public boolean hitTree(){
         return false;
     }
 }

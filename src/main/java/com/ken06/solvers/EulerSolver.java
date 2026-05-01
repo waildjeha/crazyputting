@@ -36,11 +36,9 @@ public class EulerSolver extends ODESolver{
             double[] nextState = step(this.green,time,state,stepSize);
             time += stepSize;
             state = nextState;
-            //check if height function is negative (and by def. ball is in water)
-            double currentZ = this.green.evaluateHeight(new double[]{state[0], state[1]});
+
             //is in the water
-            if (currentZ < 0){
-                System.out.println("Your ball fell into the water");
+            if (engine.isInWater(state,green)){
                 return new double[]{state[0],state[1]};
             }
 
@@ -61,9 +59,8 @@ public class EulerSolver extends ODESolver{
         double[] velocity = new double[]{values[2],values[3]};
         double[] slope = f.computeDerivatives(time,values);
 
-        double speed = Math.sqrt(velocity[0] * velocity[0] + velocity[1] * velocity[1]);
 
-        double[] result = engine.applyPhysics(values,velocity,slope,speed);
+        double[] result = engine.applyPhysics(values,velocity,slope);
         double ax = result[0];
         double ay = result[1];
 

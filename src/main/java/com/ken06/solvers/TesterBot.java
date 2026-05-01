@@ -1,5 +1,7 @@
 package com.ken06.solvers;
 
+import java.util.Arrays;
+
 public class TesterBot {
     public static void main(String[] args) {
         // 1. Define the course derivatives based on the manual's test case
@@ -129,5 +131,13 @@ public class TesterBot {
         if(speed2 > 5.0) {
             System.out.println("WARNING: Speed exceeds the maximum allowed 5 m/s!");
         }
+
+        //Testing the User logic:
+        User user = new User(startPosition2,testGreen,friction2,null);
+        System.out.println(Arrays.toString(user.getPosition()));
+        user.move(bestVelocity2,0.01);
+        System.out.println(Arrays.toString(user.getPosition()));
+        System.out.println();
+        System.out.println(Arrays.toString(solver.solve(bestVelocity2,startPosition2,0.01)));
     }
 }
