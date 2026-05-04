@@ -30,12 +30,15 @@ public class EulerSolver extends ODESolver{
                 initialVelocity[0],
                 initialVelocity[1]
         };
+        double[] slope = this.green.computeDerivatives(time,state);
 
         //loop until the ball stops (velocity < 0.01)
-        while (Math.hypot(state[2], state[3]) >= 0.01) {
+        while (engine.isMoving(state,slope)) {
             double[] nextState = step(this.green,time,state,stepSize);
             time += stepSize;
             state = nextState;
+
+            slope = this.green.computeDerivatives(time,state);
 
             //is in the water
             if (engine.isInWater(state,green)){

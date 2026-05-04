@@ -57,13 +57,15 @@ public class RK4Solver extends ODESolver {
                 initialVelocity[0],
                 initialVelocity[1]
         };
+        double[] slope = this.green.computeDerivatives(time,state);
 
-        //loop until the ball stops (velocity < 0.01)
-        while (Math.hypot(state[2], state[3]) >= 0.01) {
+        //loop until the ball is not moving
+        while (engine.isMoving(state,slope)) {
             double[] nextState = step(this.green,time,state,stepSize);
             time += stepSize;
 
             state = nextState;
+            slope = this.green.computeDerivatives(time, state);
             //is in the water
             if (engine.isInWater(state,green)){
                 if(user == null) { //not a user
@@ -77,6 +79,7 @@ public class RK4Solver extends ODESolver {
         return new double[]{state[0],state[1]};
 
     }
+
     /**
      * Helper method to evaluate the full state derivative for RK4.
      * Takes the current 4D state [x, y, vx, vy] and returns the rates of change [vx, vy, ax, ay]
