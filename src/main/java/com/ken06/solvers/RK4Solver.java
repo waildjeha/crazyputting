@@ -67,7 +67,7 @@ public class RK4Solver extends ODESolver {
             state = nextState;
             slope = this.green.computeDerivatives(time, state);
             //is in the water
-            if (engine.isInWater(state,green)){
+            if (Collision_Detector.isInWater(state,green)){
                 if(user == null) { //not a user
                     return new double[]{state[0], state[1]};
                 }else { //user
