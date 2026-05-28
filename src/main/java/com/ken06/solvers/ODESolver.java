@@ -1,5 +1,8 @@
 package com.ken06.solvers;
 
+import com.ken06.solvers.function.ODEFunction;
+import com.ken06.solvers.rk4.SolverResult;
+
 /**
  * Abstract base class for all ODE solvers which defines the shared contract and provides the full trajectory solve() method
    that every solver inherits. RK4 solver only need to implement

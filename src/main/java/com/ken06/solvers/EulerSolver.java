@@ -1,17 +1,21 @@
 package com.ken06.solvers;
 
+import com.ken06.solvers.function.ODEFunction;
+import physicsHandler.Collision_Detector;
+import physicsHandler.PhysicsEngine;
+
 public class EulerSolver extends ODESolver{
     //when hit tree get penalty when hit water penalty
     //when in sand (set certain interval) increase friction
     private ODEFunction green;
     //2d array where the first sub array holds the x-bounds and the second sub array holds the y-bounds
-    private PhysicsEngine engine;
+    private final PhysicsEngine engine;
 
     //constructor to set variables
-    public EulerSolver(ODEFunction green, double friction, double[][] sandInterval){
+    public EulerSolver(ODEFunction green,PhysicsEngine engine){
         this.green = green;
         double sandFriction = 1.0;
-        this.engine = new PhysicsEngine(friction, sandFriction,sandInterval);
+        this.engine = engine;
 
     }
     /** This ODE-Solver estimates a new position based on velocity and prior position

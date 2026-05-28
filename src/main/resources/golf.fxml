@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+
+<SplitPane dividerPositions="0.21242653232577666" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="918.0" prefWidth="1193.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="UI.Controller">
+  <items>
+      <VBox alignment="CENTER" fillWidth="false" prefHeight="705.0" prefWidth="193.0" spacing="9.0">
+         <children>
+            <Button mnemonicParsing="false" onAction="#handleOpenFile" text="Choose a text file" />
+            <Separator prefWidth="200.0" />
+            <VBox alignment="CENTER" prefHeight="50.0" prefWidth="100.0" spacing="10.0">
+               <children>
+                  <Label text="Height Function" />
+                  <TextField fx:id="heightFunctionInput" prefHeight="10.0" prefWidth="30.0" />
+               </children>
+            </VBox>
+            <Separator prefWidth="200.0" />
+            <HBox alignment="CENTER" prefHeight="50.0" prefWidth="200.0" spacing="20.0">
+               <children>
+                  <VBox alignment="CENTER" prefHeight="100.0" prefWidth="80.0" spacing="10.0">
+                     <children>
+                        <Label text="Kinetic Friction" />
+                        <TextField fx:id="kineticInput" />
+                     </children>
+                  </VBox>
+                  <VBox alignment="CENTER" prefHeight="100.0" prefWidth="80.0" spacing="10.0">
+                     <children>
+                        <Label text="Static Friction" />
+                        <TextField fx:id="staticInput" />
+                     </children>
+                  </VBox>
+               </children>
+            </HBox>
+            <Separator prefWidth="200.0" />
+            <HBox alignment="CENTER" prefHeight="50.0" prefWidth="200.0" spacing="20.0">
+               <children>
+                  <VBox alignment="CENTER" prefHeight="100.0" prefWidth="80.0" spacing="10.0">
+                     <children>
+                        <Label text="Start x" />
+                        <TextField fx:id="startX" />
+                     </children>
+                  </VBox>
+                  <VBox alignment="CENTER" prefHeight="100.0" prefWidth="80.0" spacing="10.0">
+                     <children>
+                        <Label text="Start y" />
+                        <TextField fx:id="startY" />
+                     </children>
+                  </VBox>
+               </children>
+            </HBox>
+            <Separator prefWidth="200.0" />
+            <HBox alignment="CENTER" prefHeight="50.0" prefWidth="200.0" spacing="20.0">
+               <children>
+                  <VBox alignment="CENTER" prefHeight="100.0" prefWidth="80.0" spacing="10.0">
+                     <children>
+                        <Label text="Target x" />
+                        <TextField fx:id="targetX" />
+                     </children>
+                  </VBox>
+                  <VBox alignment="CENTER" prefHeight="100.0" prefWidth="80.0" spacing="10.0">
+                     <children>
+                        <Label text="Target y" />
+                        <TextField fx:id="targetY" />
+                     </children>
+                  </VBox>
+               </children>
+            </HBox>
+            <VBox alignment="CENTER" prefHeight="50.0" prefWidth="100.0" spacing="10.0">
+               <children>
+                  <Label text="Target Radius" />
+                  <TextField fx:id="targetRadius" />
+               </children>
+            </VBox>
+            <Separator prefWidth="200.0" />
+            <Label text="Sand pit (optional)" />
+            <HBox alignment="CENTER" prefHeight="50.0" prefWidth="200.0" spacing="20.0">
+               <children>
+                  <VBox alignment="CENTER" prefHeight="100.0" prefWidth="80.0" spacing="10.0">
+                     <children>
+                        <Label text="Kinetic Friction" />
+                        <TextField fx:id="sandKineticInput" />
+                     </children>
+                  </VBox>
+                  <VBox alignment="CENTER" prefHeight="100.0" prefWidth="80.0" spacing="10.0">
+                     <children>
+                        <Label text="Static Friction" />
+                        <TextField fx:id="sandStaticInput" />
+                     </children>
+                  </VBox>
+               </children>
+            </HBox>
+            <HBox alignment="CENTER" prefHeight="30.0" prefWidth="200.0" spacing="5.0">
+               <children>
+                  <TextField fx:id="sandXMin" prefHeight="25.0" prefWidth="60.0" />
+                  <Label prefHeight="17.0" prefWidth="34.0" text="&lt; x &lt;" />
+                  <TextField fx:id="sandXMax" prefHeight="25.0" prefWidth="60.0" />
+               </children>
+            </HBox>
+            <HBox alignment="CENTER" prefHeight="30.0" prefWidth="200.0" spacing="5.0">
+               <children>
+                  <TextField fx:id="sandYMin" prefHeight="25.0" prefWidth="60.0" />
+                  <Label prefHeight="17.0" prefWidth="34.0" text="&lt; y &lt;" />
+                  <TextField fx:id="sandYMax" prefHeight="25.0" prefWidth="60.0" />
+               </children>
+            </HBox>
+            <Separator prefWidth="200.0" />
+            <Label text="Trees (optional)" />
+            <TextArea fx:id="treeTextArea" prefHeight="60.0" prefWidth="200.0" />
+            <Button fx:id="loadButton" mnemonicParsing="false" onAction="#handleLoadCourse" text="Load" />
+            <Separator prefWidth="200.0" />
+            <HBox alignment="BOTTOM_CENTER" maxHeight="379.0" prefHeight="50.0" prefWidth="200.0" spacing="20.0">
+               <children>
+                  <VBox alignment="CENTER" prefHeight="50.0" prefWidth="90.0" spacing="10.0">
+                     <children>
+                        <Label text="Initial Velocity x" />
+                        <TextField fx:id="velocityX" />
+                     </children>
+                  </VBox>
+                  <VBox alignment="CENTER" prefHeight="50.0" prefWidth="90.0" spacing="10.0">
+                     <children>
+                        <Label text="Initial velocity y" />
+                        <TextField fx:id="velocityY" />
+                     </children>
+                  </VBox>
+               </children>
+            </HBox>
+            <Button fx:id="launchButton" mnemonicParsing="false" onAction="#handleShoot" text="Launch" />
+            <Separator prefWidth="200.0" />
+            <Label fx:id="statsLabel" text="Label" />
+            <Separator prefWidth="200.0" />
+            <Button mnemonicParsing="false" onAction="#handleMLBotTest" text="See MLBot Result" />
+         </children>
+      </VBox>
+      <StackPane prefHeight="780.0" prefWidth="861.0">
+         <children>
+            <Canvas fx:id="terrainCanvas" height="800.0" width="800.0" />
+            <Canvas fx:id="actionCanvas" height="800.0" width="800.0" />
+         </children>
+      </StackPane>
+  </items>
+</SplitPane>
