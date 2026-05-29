@@ -1,0 +1,82 @@
+package com.ken06.solvers;
+
+import com.ken06.solvers.function.ODEFunction;
+import physicsHandler.Collision_Detector;
+import physicsHandler.PhysicsEngine;
+
+public class EulerSolver extends ODESolver{
+    //when hit tree get penalty when hit water penalty
+    //when in sand (set certain interval) increase friction
+    private ODEFunction green;
+    //2d array where the first sub array holds the x-bounds and the second sub array holds the y-bounds
+    private final PhysicsEngine engine;
+
+    //constructor to set variables
+    public EulerSolver(ODEFunction green,PhysicsEngine engine){
+        this.green = green;
+        double sandFriction = 1.0;
+        this.engine = engine;
+
+    }
+    /** This ODE-Solver estimates a new position based on velocity and prior position
+     *it runs until the velocity of both x and y are small enough
+     * @param initialVelocity speed of x and y
+     * @param initialPosition the position of x and y
+     * @return Array [0] X-position [1] Y-position
+     */
+    @Override
+    public double[] solve(double[] initialVelocity,double[] initialPosition,double stepSize){
+        double time = 0;
+
+        double[] state = new double[]{
+                initialPosition[0],
+                initialPosition[1],
+                initialVelocity[0],
+                initialVelocity[1]
+        };
+        double[] slope = this.green.computeDerivatives(time,state);
+
+        //loop until the ball stops (velocity < 0.01)
+        while (engine.isMoving(state,slope)) {
+            double[] nextState = step(this.green,time,state,stepSize);
+            time += stepSize;
+            state = nextState;
+
+            slope = this.green.computeDerivatives(time,state);
+
+            //is in the water
+            if (Collision_Detector.isInWater(state,green)){
+                return new double[]{state[0],state[1]};
+            }
+
+        }
+
+        return new double[]{state[0],state[1]};
+
+    }
+
+    /** HELPER METHOD EULER-SOLVER a single euler-step, computes the next x and y and the next velocity based on friction and gravity
+     *
+     * @param values the position of x and y and the velocity of x and y
+     * @param time positioning on the green to be able to call the getSlope()-method
+     * @return new estimate of x,y vx and vy
+     */
+    @Override
+    public double[] step(ODEFunction f,double time,double[] values,double stepSize){
+        double[] velocity = new double[]{values[2],values[3]};
+        double[] slope = f.computeDerivatives(time,values);
+
+
+        double[] result = engine.applyPhysics(values,velocity,slope);
+        double ax = result[0];
+        double ay = result[1];
+
+
+        double nextX = values[0] + stepSize * velocity[0];
+        double nextY = values[1] + stepSize * velocity[1];
+        double nextVx = velocity[0] + stepSize * ax;
+        double nextVy = velocity[1] + stepSize * ay;
+
+        return new double[]{nextX, nextY, nextVx, nextVy};
+    }
+}
