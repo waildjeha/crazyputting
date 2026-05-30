@@ -1,175 +1,96 @@
 package path_planning;
 
+import Objects.ObstacleContainer;
 import com.ken06.solvers.function.ODEFunction;
-import physicsHandler.Collision_Detector;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.PriorityQueue;
 
 public class A_star {
+    private final GridFactory gridFactory;
+    private final MacroPlanner macro;
+    private final MicroPlanner micro;
     private final ODEFunction green;
-    private double[][] grid;
+
     private final double cellSize;
+    private final double minX;
+    private final double minY;
 
-    private double minX = 0;
-    private double minY = 0;
+    /** path planning algorithm called A*
+     *
+     * @param green the slope of the course
+     * @param boundaries the edges of the grid to produce
+     * @param cellSize the resolution of the grid
+     * @param min holds min value of the grid always symmetric
+     */
+    public A_star(ODEFunction green,int boundaries,double cellSize, double min){
 
-    public A_star(ODEFunction green,int boundaries,double cellSize){
         this.green = green;
+        this.minY = min;
+        this.minX = min;
         this.cellSize = cellSize;
+        this.gridFactory = new GridFactory(green,boundaries,cellSize,minX,minY);
+        gridFactory.populateGrid();
+        this.macro = new MacroPlanner(green, cellSize, minX);
+        this.micro = new MicroPlanner(gridFactory.getGrid(),cellSize,minX);
 
-        int amountOfGrid = (int) Math.ceil(boundaries / cellSize);
-        grid = new double[amountOfGrid][amountOfGrid];
+
     }
 
-    public void populateGrid(){
-        for (int i = 0;i < grid.length;i++) {
-            for (int j = 0; j < grid.length; j++) {
+    /** combines gridFactory, MacroPlanner and MicroPlanner to get the calculated shots necessary to score a hole
+     *
+     * @param start the real values of the starting coordinate of the ball
+     * @param target the real values of the target location
+     * @return      the intermediate shots necessary to take to score a hole in one
+     */
+    public double[][] calculateShots(double[] start, double[] target){
 
-                //formula for calculating the actual position of the grid
-                double x = minX + (i * cellSize) + (cellSize / 2);
-                double y = minY + (j * cellSize) + (cellSize / 2);
+        //get grid indices
+        int startIndexX =  gridFactory.getGridIndexX(start[0]);
+        int startIndexY =  gridFactory.getGridIndexY(start[1]);
 
-                double[] position = {x,y};
+        int targetIndexX =  gridFactory.getGridIndexX(target[0]);
+        int targetIndexY =  gridFactory.getGridIndexY(target[1]);
+        //getting the path of the lowest grids connecting the start to the target
+        List<Node> longPath = micro.findPath(green,startIndexX, startIndexY, targetIndexX, targetIndexY);
+        //prunning the longPath to only the waypoints necessary
+        List<Node> shortPath = macro.findWayPoints(longPath);
 
-                if (Collision_Detector.isInWater(position ,green)
-                || Collision_Detector.hitTree(position ,null)
-                || Collision_Detector.hitWall(position ,null)) {
-                        grid[i][j] = Double.POSITIVE_INFINITY;
-                } else {
-                        double cost = evaluateCost(position);
-                        grid[i][j] = cost;
-                }
-            }
+        double[][] intermediateTargets = new double[shortPath.size()][2];
+
+        int length = shortPath.size()-1;
+        //transforming the waypoints into real values usable by the ODE-solvers
+        for (int i = 0; i < shortPath.size(); i++) {
+            intermediateTargets[i][0] = calculateRealValueX(shortPath.get(i));
+            intermediateTargets[i][1] = calculateRealValueY(shortPath.get(i));
+
         }
+        //setting the target to be located directly at the end
+        /*
+        this is necessary since the calculateRealValue methods return the center of each cell,
+        and we want the exact position the target not the center.
+         */
+        intermediateTargets[length][0] = target[0];
+        intermediateTargets[length][1] = target[1];
+
+        return intermediateTargets;
     }
-    public int getGridIndexX(double actualX) {
-        return (int) ((actualX - minX) / cellSize);
+
+    /** retrieves the real value on the course based on the indices given
+     *
+     * @param value indexes on the grid (i, j)
+     * @return      the real value on the course of X
+     */
+    private double calculateRealValueX(Node value){
+        return minX + (value.x * cellSize) + (cellSize / 2.0);
     }
 
-    public int getGridIndexY(double actualY) {
-        return (int) ((actualY - minY) / cellSize);
-    }
-    private double evaluateCost(double[] position){
-
-        double epsilon = 0.001;
-        double cost = 1;
-
-        double x = position[0];
-        double y = position[1];
-
-        // Evaluate heights
-        double height = green.evaluateHeight(position);
-        double alteredHeightX = green.evaluateHeight(new double[]{x + epsilon, y});
-        double alteredHeightY = green.evaluateHeight(new double[]{x, y + epsilon});
-
-        double slopeX = Math.abs(alteredHeightX - height) / epsilon;
-        double slopeY = Math.abs(alteredHeightY - height) / epsilon;
-
-        // Take the steepest slope at this point
-        double maxSlope = Math.max(slopeX, slopeY);
-
-        // Add the slope to the cost.
-        // You can multiply maxSlope by a tuning factor (e.g., 2.0) if you want A* to avoid hills more aggressively.
-        cost += maxSlope;
-
-        if (Collision_Detector.isInSand(position , null)){
-            cost += 4;
-        }
-        return cost;
-    }
-    private double calculateDirection(int currentX, int currentY, int targetX, int targetY) {
-
-        double distantX = currentX - targetX;
-        double distantY = currentY - targetY;
-
-        return Math.sqrt(distantX * distantX + distantY * distantY) * cellSize;
-    }
-    public List<Node> findPath(int startX, int startY, int targetX, int targetY){
-        //setting objects
-        PriorityQueue<Node> openSet = new PriorityQueue<>();
-        boolean[][] closedSet = new boolean[grid.length][grid.length];
-        Node[][] allNodes = new Node[grid.length][grid.length];
-
-        //populating allNodes-object
-        for (int i = 0; i < grid.length; i++) {
-            for (int j = 0; j < grid[0].length; j++) {
-                allNodes[i][j] = new Node(i, j);
-            }
-        }
-        //getting the first node and setting its values right
-        Node startNode = allNodes[startX][startY];
-        startNode.startCost = 0;
-        startNode.endCost = calculateDirection(startX, startY, targetX, targetY);
-        startNode.totalCost = startNode.startCost + startNode.endCost;
-        openSet.add(startNode);
-
-        //list of all possible directions
-        int[][] directions = { {0,1}, {1,0}, {0,-1}, {-1,0}, {1,1}, {1,-1}, {-1,1}, {-1,-1} };
-
-        while(!openSet.isEmpty()){
-
-            Node current = openSet.poll();
-
-            if(current.x == targetX && current.y == targetY){
-                return retracePath(startNode, current);
-            }
-
-            closedSet[current.x][current.y] = true;
-
-            for (int[] direction : directions){
-                int neighborX = direction[0];
-                int neighborY = direction[1];
-
-                if (neighborX < 0 || neighborX >= grid.length
-                        || neighborY < 0 || neighborY >= grid.length){
-                    continue;
-                }
-                if(grid[neighborX][neighborY] == Double.POSITIVE_INFINITY
-                        || closedSet[neighborX][neighborY]){
-                    continue;
-                }
-
-                Node neighbor = allNodes[neighborX][neighborY];
-
-                double distanceToNeighbor;
-                 if (direction[0] != 0 && direction[1] != 0){
-                     //move 1 x and 1 y
-                     distanceToNeighbor = 1.414;
-                 } else{
-                     //move on a line
-                     distanceToNeighbor = 1.0;
-                 }
-
-                // new starting cost = current starting Cost + terrain penalty + base distance
-                double newStartingCost = current.startCost + grid[neighborX][neighborY] + (distanceToNeighbor * cellSize);
-
-                if (newStartingCost < neighbor.startCost) {
-                    neighbor.parent = current;
-                    neighbor.startCost = newStartingCost;
-                    neighbor.endCost = calculateDirection(neighborX, neighborY, targetX, targetY);
-                    neighbor.totalCost = neighbor.startCost + neighbor.endCost;
-
-                    if (!openSet.contains(neighbor)) {
-                        openSet.add(neighbor);
-                    }
-                }
-            }
-        }
-        return null;
-    }
-    private List<Node> retracePath(Node startNode, Node endNode){
-        List<Node> path = new ArrayList<>();
-        Node current = endNode;
-
-        while (current != startNode) {
-            path.add(current);
-            current = current.parent;
-        }
-        Collections.reverse(path);
-
-        return path;
+    /**
+     * retrieves the real value on the course based on the indices given
+     *
+     * @param value indexes on the grid (i, j)
+     * @return      the real value on the course of Y
+     */
+    private double calculateRealValueY(Node value){
+        return minY + (value.y * cellSize) + (cellSize / 2.0);
     }
 }

@@ -1,5 +1,8 @@
 package UI;
 
+import Objects.ObstacleContainer;
+import Objects.SandPit;
+import Objects.Tree;
 import com.ken06.solvers.function.FunctionEvaluator;
 
 import java.util.List;
@@ -48,5 +51,22 @@ public class Course {
         this.sandMuS = sandMuS;
         this.sandInterval = sandInterval;
         this.trees = trees;
+        ObstacleContainer container = ObstacleContainer.getInstance();
+        container.reset();
+        //populate obstacle container
+
+        for(double[] tree : trees){
+            container.addTree(new Tree(tree));
+        }
+        //maybe add a list of sandIntervals
+        container.addSandPit(new SandPit(sandInterval));
+
+        //add wall loop
+        /*
+        for(double[] wall : walls){
+            container.addWall(new Wall(wall));
+        }
+         */
+
     }
 }

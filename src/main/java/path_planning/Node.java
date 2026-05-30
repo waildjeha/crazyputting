@@ -7,10 +7,15 @@ public class Node implements Comparable<Node>{
     public double totalCost;      // Total cost (g + h)
     public Node parent;       // The node we came from
 
+    /** the object used in the A* algorithm
+     *
+     * @param x the grid index i
+     * @param y the grid index j
+     */
     public Node(int x, int y) {
         this.x = x;
         this.y = y;
-        this.endCost = Double.POSITIVE_INFINITY;
+        this.startCost = Double.POSITIVE_INFINITY;
         this.totalCost = Double.POSITIVE_INFINITY;
         this.parent = null;
     }
