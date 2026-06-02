@@ -1,5 +1,7 @@
 package Objects;
 
+import com.ken06.solvers.function.ODEFunction;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,6 +10,7 @@ public class ObstacleContainer {
     private static List<Tree> trees;
     private static List<Wall> walls;
     private static ObstacleContainer instance;
+    private static ODEFunction green;
 
     /** Singleton class so only one object of this class is accessible in the whole program
      *
@@ -28,6 +31,12 @@ public class ObstacleContainer {
             walls = new ArrayList<>();
         }
         return instance;
+    }
+    /**
+     * Checks if the course has been fully loaded into the container.
+     */
+    public boolean isReady() {
+        return this.green != null;
     }
 
     public List<SandPit> getSandPits() {
@@ -59,5 +68,14 @@ public class ObstacleContainer {
         sandPits = new ArrayList<>();
         trees = new ArrayList<>();
         walls = new ArrayList<>();
+        green = null;
+    }
+
+    public void setGreen(ODEFunction green) {
+        ObstacleContainer.green = green;
+    }
+
+    public ODEFunction getGreen() {
+        return green;
     }
 }

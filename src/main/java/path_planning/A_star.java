@@ -9,7 +9,6 @@ public class A_star {
     private final GridFactory gridFactory;
     private final MacroPlanner macro;
     private final MicroPlanner micro;
-    private final ODEFunction green;
 
     private final double cellSize;
     private final double minX;
@@ -17,20 +16,18 @@ public class A_star {
 
     /** path planning algorithm called A*
      *
-     * @param green the slope of the course
      * @param boundaries the edges of the grid to produce
      * @param cellSize the resolution of the grid
      * @param min holds min value of the grid always symmetric
      */
-    public A_star(ODEFunction green,int boundaries,double cellSize, double min){
+    public A_star(int boundaries,double cellSize, double min){
 
-        this.green = green;
         this.minY = min;
         this.minX = min;
         this.cellSize = cellSize;
-        this.gridFactory = new GridFactory(green,boundaries,cellSize,minX,minY);
+        this.gridFactory = new GridFactory(boundaries,cellSize,minX,minY);
         gridFactory.populateGrid();
-        this.macro = new MacroPlanner(green, cellSize, minX);
+        this.macro = new MacroPlanner(cellSize, minX);
         this.micro = new MicroPlanner(gridFactory.getGrid(),cellSize,minX);
 
 
@@ -44,6 +41,11 @@ public class A_star {
      */
     public double[][] calculateShots(double[] start, double[] target){
 
+        //check if course has been initialized
+        if (!ObstacleContainer.getInstance().isReady()) {
+            throw new IllegalStateException("Cannot calculate shots: ObstacleContainer is not fully initialized. Create a Course first.");
+        }
+
         //get grid indices
         int startIndexX =  gridFactory.getGridIndexX(start[0]);
         int startIndexY =  gridFactory.getGridIndexY(start[1]);
@@ -51,9 +53,14 @@ public class A_star {
         int targetIndexX =  gridFactory.getGridIndexX(target[0]);
         int targetIndexY =  gridFactory.getGridIndexY(target[1]);
         //getting the path of the lowest grids connecting the start to the target
-        List<Node> longPath = micro.findPath(green,startIndexX, startIndexY, targetIndexX, targetIndexY);
+        List<Node> longPath = micro.findPath(startIndexX, startIndexY, targetIndexX, targetIndexY);
         //prunning the longPath to only the waypoints necessary
         List<Node> shortPath = macro.findWayPoints(longPath);
+
+        //if target is on the start
+        if (shortPath.isEmpty()) {
+            return new double[][] { {target[0], target[1]} };
+        }
 
         double[][] intermediateTargets = new double[shortPath.size()][2];
 
@@ -73,6 +80,46 @@ public class A_star {
         intermediateTargets[length][1] = target[1];
 
         return intermediateTargets;
+    }
+
+    /** Retrieves the velocity of the intermediate targets
+     *
+     * @param intermediateTargets the waypoints of the A* search
+     * @param start the starting position
+     * @return      a 2D array with the estimated guess of the velocity to reach each intermediate target
+     */
+    public double[][] calculateVelocityBasedOnShots(double[] start,double[][] intermediateTargets){
+        double[][] velocity = new double[intermediateTargets.length][intermediateTargets[0].length];
+
+        double xStart = start[0];
+        double yStart = start[1];
+
+        for (int i = 0; i < intermediateTargets.length; i++) {
+            double[] position = intermediateTargets[i];
+
+            double x = position[0];
+            double y = position[1];
+
+            double velocityX = x - xStart;
+            double velocityY = y - yStart;
+
+            //safety check
+            double speed = Math.sqrt(velocityY * velocityY + velocityX * velocityX);
+
+
+            if (speed > 5){
+                velocityX = velocityX / (speed);
+                velocityY = velocityY / (speed);
+            }
+            velocity[i][0] = velocityX;
+            velocity[i][1] = velocityY;
+
+            //update starting location to look at the latest position
+            xStart = x;
+            yStart = y;
+        }
+
+        return velocity;
     }
 
     /** retrieves the real value on the course based on the indices given

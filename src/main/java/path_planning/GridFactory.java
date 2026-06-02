@@ -4,7 +4,6 @@ import com.ken06.solvers.function.ODEFunction;
 import physicsHandler.Collision_Detector;
 
 public class GridFactory {
-    private final ODEFunction green;
     private double[][] grid;
     protected final  double cellSize;
 
@@ -13,14 +12,12 @@ public class GridFactory {
 
     /** constructor of the gridFactory
      *
-     * @param green the slope of the course (used for evaluating water)
      * @param boundaries the end of the grid for x and y (symmetrical grid)
      * @param cellSize how big each cell is on the grid
      * @param minX the start of the grid for x
      * @param minY the start of the grid for y
      */
-    public GridFactory(ODEFunction green,int boundaries,double cellSize, double minX, double minY){
-        this.green = green;
+    public GridFactory(int boundaries,double cellSize, double minX, double minY){
         this.cellSize = cellSize;
 
         this.minX = minX;
@@ -42,7 +39,7 @@ public class GridFactory {
 
                 double[] position = {x,y};
 
-                if (Collision_Detector.hitAnything(position,green)) {
+                if (Collision_Detector.hitAnything(position)) {
                     grid[i][j] = Double.POSITIVE_INFINITY;
                 } else {
                     double cost = evaluateCost(position);

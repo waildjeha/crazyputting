@@ -45,7 +45,7 @@ public class EulerSolver extends ODESolver{
             slope = this.green.computeDerivatives(time,state);
 
             //is in the water
-            if (Collision_Detector.isInWater(state,green)){
+            if (Collision_Detector.isInWater(state)){
                 return new double[]{state[0],state[1]};
             }
 

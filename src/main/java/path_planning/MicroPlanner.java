@@ -1,5 +1,6 @@
 package path_planning;
 
+import Objects.ObstacleContainer;
 import com.ken06.solvers.function.ODEFunction;
 
 import java.util.ArrayList;
@@ -40,18 +41,20 @@ public class MicroPlanner {
 
     /** finds the path following each grid cell to determine the quickest way / the lowest cost to reach the target
      *
-     * @param green the golf course
      * @param startX the x-index on the grid where the ball starts
      * @param startY the y-index on the grid where the ball starts
      * @param targetX the x-index on the grid where the ball needs to go
      * @param targetY the y-index on the grid where the ball needs to go
      * @return        a list of nodes which are sorted in order form the starting node to the last node (where we reach the target)
      */
-    public List<Node> findPath(ODEFunction green,int startX, int startY, int targetX, int targetY){
+    public List<Node> findPath(int startX, int startY, int targetX, int targetY){
         //setting objects
         PriorityQueue<Node> openSet = new PriorityQueue<>();
         boolean[][] closedSet = new boolean[grid.length][grid.length];
         Node[][] allNodes = new Node[grid.length][grid.length];
+
+        ObstacleContainer container = ObstacleContainer.getInstance();
+        ODEFunction green = container.getGreen();
 
         if (startX == targetX && startY == targetY) {
             return new ArrayList<>();

@@ -72,7 +72,7 @@ public class RK4Solver extends ODESolver {
             state = nextState;
             slope = this.green.computeDerivatives(time, state);
             //is in the water
-            if (Collision_Detector.isInWater(state,green)){
+            if (Collision_Detector.isInWater(state)){
                 if(user == null) { //not a user
                     //multi shot approach, reset to start and shoot in different direction.
                     return new double[]{state[0], state[1]};

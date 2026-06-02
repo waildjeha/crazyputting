@@ -12,10 +12,10 @@ public class Collision_Detector{
  * Determines if the ball has fallen into a water hazard (height less than zero).
  *
  * @param state the current state array containing the ball's x and y position
- * @param green the mathematical function defining the course terrain
  * @return      true if the ball's position results in a negative height, false otherwise
  */
-public static boolean isInWater(double[] state, ODEFunction green) {
+public static boolean isInWater(double[] state) {
+    ODEFunction green = container.getGreen();
     double currentZ = green.evaluateHeight(new double[]{state[0], state[1]});
 
     return currentZ < 0;
@@ -98,6 +98,8 @@ public static boolean isInWater(double[] state, ODEFunction green) {
     public static boolean isInSand(double[] position){
         List<SandPit> sandPits = container.getSandPits();
 
+        if (sandPits == null || sandPits.isEmpty()) return false;
+
         double x = position[0];
         double y = position[1];
         for(SandPit sandpit : sandPits) {
@@ -114,7 +116,7 @@ public static boolean isInWater(double[] state, ODEFunction green) {
 
         return false;
     }
-    public static boolean hitAnything(double[] position, ODEFunction green){
-        return isInSand(position) || isInWater(position,green) || hitWall(position) || hitTree(position);
+    public static boolean hitAnything(double[] position){
+        return isInSand(position) || isInWater(position) || hitWall(position) || hitTree(position);
     }
 }

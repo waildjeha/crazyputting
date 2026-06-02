@@ -88,7 +88,7 @@ public class RuleBasedBotTest {
             sandInterval
         );
         ODESolver solver = new RK4Solver(function,physics);
-        RuleBasedBot bot = new RuleBasedBot(solver, physics);
+        RuleBasedBot bot = new RuleBasedBot(solver);
 
         double[] velocity = bot.calculateVelocity(
             ballPos,

@@ -17,14 +17,11 @@ public class RuleBasedBot {
     private static final double TARGET_TOLERANCE = 0.05;
 
     private final ODESolver solver;
-    private final PhysicsEngine physics;
 
-    public RuleBasedBot(ODESolver solver, PhysicsEngine physics) {
+    public RuleBasedBot(ODESolver solver) {
         if (solver == null) throw new IllegalArgumentException("Solver cannot be null");
-        if (physics == null) throw new IllegalArgumentException("PhysicsEngine cannot be null");
 
         this.solver = solver;
-        this.physics = physics;
     }
 // assuming we do not use trees, can be changed later
     public double[] calculateVelocity(double[] ballPos,
@@ -53,7 +50,7 @@ public class RuleBasedBot {
 
         double speed = Math.sqrt(2.0 * miuK * g * distance);
 
-        if (physics.isInSand(ballPos) || physics.isInSand(targetPos)) {
+        if (Collision_Detector.isInSand(ballPos) || Collision_Detector.isInSand(targetPos)) {
             speed *= 1.6;
         }
         speed = clamp(speed, MIN_SPEED, MAX_SPEED);
@@ -187,11 +184,11 @@ public class RuleBasedBot {
             times.add(time);
             states.add(state.clone());
 
-            if (Collision_Detector.isInWater(state, f)) {
+            if (Collision_Detector.isInWater(state)) {
                 break;
             }
 
-            if (Collision_Detector.hitTree(state, trees)) {
+            if (Collision_Detector.hitTree(state)) {
                 break;
             }
 

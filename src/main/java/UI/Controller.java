@@ -419,7 +419,7 @@ public class Controller {
                             time[0] += stepSize;
                             
                             // Check for water mid-step
-                            if (Collision_Detector.isInWater(state, courseODE)) {
+                            if (Collision_Detector.isInWater(state)) {
                                 this.stop();
                                 System.out.println("Splash!");
                                 shotCount += 1; // Penalty

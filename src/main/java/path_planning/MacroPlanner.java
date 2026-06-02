@@ -7,13 +7,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MacroPlanner {
-    private final ODEFunction green;
     private final double cellSize;
     private final double minX;
     private final double minY;
 
-    public MacroPlanner(ODEFunction green,double cellSize, double minX){
-        this.green = green;
+    public MacroPlanner(double cellSize, double minX){
         this.cellSize = cellSize;
         this.minY = minX;
         this.minX = minX;
@@ -86,7 +84,7 @@ public class MacroPlanner {
 
             double[] position = {startX + (xStep * j), startY + (yStep * j)};
 
-            if (Collision_Detector.hitAnything(position, green)) {
+            if (Collision_Detector.hitAnything(position)) {
                 return true; // Line of sight broken
             }
         }

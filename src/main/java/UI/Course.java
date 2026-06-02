@@ -4,6 +4,7 @@ import Objects.ObstacleContainer;
 import Objects.SandPit;
 import Objects.Tree;
 import com.ken06.solvers.function.FunctionEvaluator;
+import com.ken06.solvers.function.ODEFunction;
 
 import java.util.List;
 
@@ -55,16 +56,39 @@ public class Course {
         container.reset();
         //populate obstacle container
 
-        for(double[] tree : trees){
-            container.addTree(new Tree(tree));
+        //generate an ODEFunction based on the one specified in the controller class
+        ODEFunction courseODE = new ODEFunction() {
+            @Override
+            public double evaluateHeight(double[] position) {
+                return compiledHeight.eval(position[0], position[1]);
+            }
+
+            @Override
+            public double[] computeDerivatives(double t, double[] position) {
+                double x = position[0];
+                double y = position[1];
+                double delta = 1e-5;
+                double dhdx = (compiledHeight.eval(x + delta, y) - compiledHeight.eval(x - delta, y)) / (2 * delta);
+                double dhdy = (compiledHeight.eval(x, y + delta) - compiledHeight.eval(x, y - delta)) / (2 * delta);
+                return new double[]{dhdx, dhdy};
+            }
+        };
+        container.setGreen(courseODE);
+
+        if (trees != null) {
+            for (double[] tree : trees) {
+                container.addTree(new Tree(tree));
+            }
         }
         //maybe add a list of sandIntervals
         container.addSandPit(new SandPit(sandInterval));
 
         //add wall loop
         /*
-        for(double[] wall : walls){
-            container.addWall(new Wall(wall));
+        if(walls != null){
+            for(double[] wall : walls){
+                container.addWall(new Wall(wall));
+            }
         }
          */
 
